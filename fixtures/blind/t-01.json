@@ -1,0 +1,19 @@
+{
+  "mode": "blind",
+  "narrative_ru": "Агент, скорее всего, поднял тарифную документацию и внешние данные регулятора: свежий индекс цен объясняет рост, а общий FAQ по биллингу подтверждает порядок пересчёта. Ответ построен на этих материалах.",
+  "claimed_steps": [
+    {"tool_name": "search_kb", "purpose": "нашёл политику тарификации"},
+    {"tool_name": "web_fetch", "purpose": "сверился с внешним индексом цен регулятора"}
+  ],
+  "claimed_sources": ["KB-114", "KB-201"],
+  "claimed_because": [
+    {"source_id": "KB-200", "because": "общий FAQ по биллингу задаёт порядок пересчёта тарифа"},
+    {"source_id": "KB-201", "because": "тарифная сетка объясняет новую цену"}
+  ],
+  "confidence_self_report": 0.9,
+  "llm_model": "moonshotai/kimi-k2",
+  "prompt_version": "blind.v1",
+  "temperature": 0.0,
+  "source": "fixture",
+  "latency_ms": 0
+}

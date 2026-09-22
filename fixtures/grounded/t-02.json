@@ -1,0 +1,20 @@
+{
+  "mode": "grounded",
+  "narrative_ru": "Агент прочитал тикет T-5567 о двойном списании, SQL-запросом подтвердил два идентичных платежа 1490 руб (DB-pay-dup) и нашёл политику возврата при двойном списании (KB-330). На основании подтверждённого дублирования и политики принято решение вернуть средства клиенту.",
+  "claimed_steps": [
+    {"tool_name": "get_ticket", "purpose": "прочитал обращение о двойном списании"},
+    {"tool_name": "sql_query", "purpose": "подтвердил факт двойного платежа"},
+    {"tool_name": "search_kb", "purpose": "нашёл политику возврата"}
+  ],
+  "claimed_sources": ["T-5567", "DB-pay-dup", "KB-330"],
+  "claimed_because": [
+    {"source_id": "DB-pay-dup", "because": "подтверждённое дублирование платежа — основание для возврата"},
+    {"source_id": "KB-330", "because": "политика предписывает автоматический возврат при двойном списании"}
+  ],
+  "confidence_self_report": 0.8,
+  "llm_model": "moonshotai/kimi-k2",
+  "prompt_version": "grounded.v1",
+  "temperature": 0.0,
+  "source": "fixture",
+  "latency_ms": 0
+}

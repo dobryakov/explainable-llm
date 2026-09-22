@@ -1,0 +1,19 @@
+{
+  "mode": "grounded",
+  "narrative_ru": "Агент выполнил поиск по базе знаний и нашёл политику авто-индексации тарифа при продлении (KB-114), затем SQL-запросом поднял историю тарифа клиента и подтвердил повышение 1290 -> 1490 руб (DB-cust-plan). На этих двух источниках и построен ответ.",
+  "claimed_steps": [
+    {"tool_name": "search_kb", "purpose": "нашёл политику авто-индексации тарифа"},
+    {"tool_name": "sql_query", "purpose": "подтвердил конкретное повышение по истории тарифа"}
+  ],
+  "claimed_sources": ["KB-114", "DB-cust-plan"],
+  "claimed_because": [
+    {"source_id": "KB-114", "because": "политика авто-индексации объясняет сам факт роста при продлении"},
+    {"source_id": "DB-cust-plan", "because": "история тарифа подтверждает конкретную величину повышения"}
+  ],
+  "confidence_self_report": 0.8,
+  "llm_model": "moonshotai/kimi-k2",
+  "prompt_version": "grounded.v1",
+  "temperature": 0.0,
+  "source": "fixture",
+  "latency_ms": 0
+}

@@ -1,0 +1,18 @@
+{
+  "mode": "blind",
+  "narrative_ru": "Похоже, агент прочитал обращение клиента и обратился к внешнему платёжному сервису, чтобы свериться со статусом транзакции; на основании регламента возвратов он предложил вернуть средства.",
+  "claimed_steps": [
+    {"tool_name": "get_ticket", "purpose": "прочитал жалобу клиента"},
+    {"tool_name": "web_fetch", "purpose": "проверил статус платежа во внешнем сервисе"}
+  ],
+  "claimed_sources": ["T-5567", "KB-401"],
+  "claimed_because": [
+    {"source_id": "KB-401", "because": "регламент возвратов предписывает вернуть средства"}
+  ],
+  "confidence_self_report": 0.85,
+  "llm_model": "moonshotai/kimi-k2",
+  "prompt_version": "blind.v1",
+  "temperature": 0.0,
+  "source": "fixture",
+  "latency_ms": 0
+}
