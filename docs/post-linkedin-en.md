@@ -1,6 +1,4 @@
-Your AI agent just gave a confident answer. You ask "why?" and it explains: "I checked the policy and cross-checked the payment history." Sounds solid.
-
-It might be complete fiction.
+Your AI agent just gave a confident answer. You ask "why?" and it explains: "I checked the policy and cross-checked the payment history." Sounds solid. It might be complete fiction.
 
 An LLM explanation is just more generated text. When an agent tells you why it did something, it isn't reading an internal log — it's producing a plausible story. Sometimes that story matches reality. Sometimes the agent never opened that document and invented the citation. The words sound identical either way. Researchers call this a lack of #faithfulness.
 

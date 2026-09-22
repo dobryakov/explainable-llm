@@ -414,3 +414,5 @@ green.
 Explainable AI, in its most useful form, is not about opening the weights. It is
 about earning the right to trust an explanation. That right has to be measured, not
 assumed — and it turns out you can measure it.
+
+https://github.com/dobryakov/explainable-llm
