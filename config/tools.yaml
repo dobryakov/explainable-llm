@@ -1,0 +1,28 @@
+# Реестр инструментов агента (эскиз §4, замена реестра признаков).
+# Единственный источник правды: какие инструменты доступны, их русские имена
+# и алиасы для трёхуровневого матчинга в audit. Инструмент вне этого списка,
+# упомянутый в объяснении, — выдумка (fabrication).
+tools:
+  - name: search_kb
+    display_name_ru: Поиск по базе знаний
+    description: Полнотекстовый поиск по внутренней базе знаний, возвращает документы.
+    retrieves_sources: true
+    aliases: [knowledge_base, kb_search, поиск_по_базе, база_знаний]
+
+  - name: get_ticket
+    display_name_ru: Чтение тикета
+    description: Читает тикет поддержки по идентификатору.
+    retrieves_sources: true
+    aliases: [ticket, read_ticket, тикет, get_case]
+
+  - name: sql_query
+    display_name_ru: SQL-запрос
+    description: Выполняет read-only SQL к аналитической витрине.
+    retrieves_sources: true
+    aliases: [sql, query_db, database, запрос_к_бд]
+
+  - name: web_fetch
+    display_name_ru: Загрузка веб-страницы
+    description: Загружает внешнюю веб-страницу по URL.
+    retrieves_sources: true
+    aliases: [fetch, http_get, web, загрузка_страницы]

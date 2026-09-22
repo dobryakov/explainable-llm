@@ -1,0 +1,42 @@
+# CI (эскиз §7, §12.5): собрать образы, поднять стек в fixture-режиме (без ключа),
+# прогнать make eval. Единственный тест, охраняющий смысл проекта, — проверка,
+# что разрыв верности grounded-blind не меньше порога (CI_GAP_THRESHOLD, старт 25).
+# `gateway.eval` завершается с кодом 1 при gap < порога.
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  faithfulness-gap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start stack (fixture mode, offline)
+        env:
+          LLM_MODE: fixture
+        run: docker compose up -d --build
+
+      - name: Wait for services to become healthy
+        run: |
+          set -e
+          for svc in agent-runtime narrator audit gateway; do
+            cid="explainable-llm-${svc}-1"
+            echo "waiting for $svc ..."
+            for i in $(seq 1 60); do
+              status=$(docker inspect --format '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "missing")
+              [ "$status" = "healthy" ] && break
+              sleep 3
+            done
+            [ "$status" = "healthy" ] || { echo "::error::$svc not healthy ($status)"; docker compose logs "$svc"; exit 1; }
+          done
+
+      - name: Run eval (fails if grounded-blind gap < threshold)
+        run: docker compose run --rm --no-deps gateway python -m gateway.eval
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs

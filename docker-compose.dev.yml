@@ -1,0 +1,9 @@
+# Оверлей для отладки (эскиз §6): публикует внутренние порты сервисов на хост.
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+services:
+  agent-runtime:
+    ports: ["12101:12101"]
+  narrator:
+    ports: ["12102:12102"]
+  audit:
+    ports: ["12103:12103"]
