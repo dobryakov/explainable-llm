@@ -234,6 +234,46 @@ not about "what happens inside the weights".
 
 ---
 
+## Market fit and the gap to a product
+
+The **problem** this project targets is squarely in current demand (2025–2026):
+the industry's shift from chatbots to *acting* agents (tool use, MCP, agentic
+workflows) has pulled agent **observability and evaluation** to the front, and
+"does the agent's explanation match what it actually did" is a recognized, not
+speculative, question — see the faithfulness literature (ICLR 2025 "Walk the Talk?")
+and lab findings that chain-of-thought often does not reflect the real causes.
+Citation hallucination in RAG and the EU AI Act's transparency obligations push in
+the same direction.
+
+Where this project is **ahead** of the market: causal validity by **ablation
+re-runs** is more rigorous than the de-facto standard of *LLM-as-judge* ("a second
+model grades the explanation"). Determinism instead of "AI judging AI" is a genuine
+differentiator — but it is also less familiar to buyers who expect a judge.
+
+Where the **gap to a real product** lies, stated honestly:
+
+- **LLM-as-judge is the incumbent expectation.** Rejecting it is methodologically
+  right, but the value has to be positioned explicitly as *a deterministic
+  alternative to an unreliable judge*, next to familiar scores (e.g. RAGAS-style
+  faithfulness), or buyers won't recognize it.
+- **Runtime instrumentation is a high barrier.** The invariant "the wrapper writes
+  the trace, not the agent" is sound, but teams run agents through existing
+  frameworks (LangChain / LlamaIndex / CrewAI) and expect integration via
+  **OpenTelemetry / OpenInference traces**, not a bespoke tool-runner. This is the
+  main demo-to-product gap: ingesting *someone else's* traces rather than producing
+  our own.
+- **Agent coverage is demo-level.** Real demand spans code agents, computer-use, and
+  multi-step trajectories with branching. Source-only ablation over two tasks is a
+  proof of concept, not coverage of real agent traces.
+
+**Bottom line.** The thesis and its scientific basis ride the current wave; what
+separates this from a marketable tool is not the idea but the **integration layer** —
+accepting standard agent traces (OpenTelemetry / OpenInference) instead of a custom
+runner, and framing the deterministic check as an explicit alternative to the
+LLM-judge.
+
+---
+
 ## Status — all phases complete
 
 | Phase | Delivered |
