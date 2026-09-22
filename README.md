@@ -37,6 +37,41 @@ the project's thesis as a test.
 
 ---
 
+## Why this matters — the business problem
+
+In one line: **it lets you trust an AI's justification, not just its answer — and
+put a number on that trust.**
+
+As LLM agents move from chatting to *acting* — querying databases, reading tickets,
+issuing refunds — a new risk appears: the agent can describe its reasoning in a way
+that has nothing to do with what it actually did. "I checked the policy and the
+payment history" is cheap to generate and impossible to trust at face value. This
+project turns that trust into a measurable, auditable score.
+
+Where it pays off:
+
+- **Regulated industries** (finance, insurance, healthcare, legal). Producing an
+  answer is not enough — you must show *on what grounds*. If the AI invents its
+  grounds, the company inherits legal and reputational risk. This gives a measurable
+  guarantee that the stated justification is real.
+- **RAG systems and citation.** The most common and dangerous failure of AI
+  assistants is **citing a source it never actually retrieved** (citation
+  hallucination). That is exactly what the `source_grounding` component catches.
+- **Auditing AI agents.** As agents gain access to real tools and actions, the
+  question becomes: do they do what they say? This is a prototype **agent-audit
+  tool** — not "what happens inside the neurons", but "does the agent's report match
+  its real actions".
+- **Transparency compliance** (e.g. the EU AI Act's explainability requirements).
+  Emitting an explanation is one thing; proving it is *faithful* is the harder part,
+  and it is the part this project addresses.
+
+**Analogy.** It is like a **bank statement versus an employee's word**: the employee
+can tell you where the money went, but the statement shows what actually happened.
+This project automatically checks the AI's "word" against its "statement" and tells
+you how much the explanation can be trusted.
+
+---
+
 ## The faithfulness metric
 
 `F = 100 · (0.25·coverage + 0.25·precision + 0.20·grounding + 0.30·causal)`
