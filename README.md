@@ -289,3 +289,45 @@ LLM-judge.
 `grounded` scores a clean 100; on a live model the absolute scores become more
 realistic while the gap persists (the CI guard checks the gap, not the absolute).
 Calibrating the CI threshold (§12.5) calls for expanding the demo set to 8–10 tasks.
+
+---
+
+## Roadmap — OpenTelemetry trace ingestion
+
+The single most valuable next step (see *Market fit* above) is to **audit traces
+the team already produces**, instead of requiring our bespoke tool-runner. Agent
+frameworks (LangChain / LlamaIndex / CrewAI) already emit spans under the
+**OpenTelemetry GenAI / OpenInference** semantic conventions, so the trace is
+available — it just needs to be read in our shape.
+
+Sketch of how:
+
+1. **Ingestion endpoint.** Add an OTLP receiver to `agent-runtime` (or a small new
+   `trace-ingest` service) that accepts an OpenTelemetry trace — either a live OTLP
+   export or a stored span dump.
+2. **Span → `AgentTrace` adapter.** Map OTel GenAI / OpenInference spans onto the
+   existing [`AgentTrace`](shared/exllm_shared/models.py) contract, so nothing
+   downstream changes:
+   - spans of kind `tool` / `TOOL` → `TraceStep(type="tool_call"|"tool_result")`,
+     with `gen_ai.tool.name` → `tool_name` and tool arguments → `tool_input`;
+   - retriever spans (`retrieval.documents`, `gen_ai.*`) → `retrieved_ids` and
+     `sources_used`, keyed by each framework's document-id attribute;
+   - the root/LLM span's output → `final_answer`; `gen_ai.request.model` → `model`.
+   Keep the adapter per-convention and explicit (no guessing), the same discipline
+   as the three-level name matching.
+3. **Everything downstream is unchanged.** `narrator` and `audit` already consume
+   `AgentTrace`, so blind/grounded explanation and components 1–3 work as-is on an
+   ingested trace with **zero** changes.
+4. **Causal validity needs a replay hook.** Ablation (§5) requires re-running the
+   agent with a source removed. Ingested traces are *observations*, not something we
+   can re-run, so this is where integration is non-trivial. Two honest options:
+   - **degrade gracefully** — compute components 1–3 + `fabrication_rate` on ingested
+     traces and mark `causal_validity` as "not available" (the metric already
+     supports a provisional score with renormalized weights);
+   - **opt-in replay** — for teams that expose a re-run entry point (a callback URL
+     or a captured tool-fixture set), drive ablation through it, exactly as
+     `_ablation_run_fn` drives `agent-runtime` today.
+
+This keeps the project's core — the immutable trace as ground truth and the
+deterministic metric over it — while meeting teams where they already are: standard
+traces in, faithfulness score out.
