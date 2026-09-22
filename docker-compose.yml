@@ -1,0 +1,103 @@
+# Explainable-LLM-Agent демо (эскиз §6). Порты вынесены из стандартного
+# диапазона: gateway 12100 (наружу), agent-runtime 12101, narrator 12102,
+# audit 12103. Порядок запуска — через depends_on/condition, без sleep.
+# Внутренние порты сервисов публикуются на хост только в docker-compose.dev.yml.
+services:
+  agent-runtime:
+    build:
+      context: .
+      dockerfile: services/agent-runtime/Dockerfile
+      args:
+        CODE_VERSION: ${CODE_VERSION:-dev}
+    environment:
+      - PORT=12101
+      - LLM_MODE=${LLM_MODE:-fixture}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://openrouter.ai/api/v1}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - NARRATOR_MODEL=${NARRATOR_MODEL:-moonshotai/kimi-k2}
+      - TOOLS_PATH=/config/tools.yaml
+    volumes:
+      - ./config:/config:ro
+      - ./tasks:/tasks:ro
+      - ./fixtures:/fixtures:ro
+    networks: [exllm-net]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:12101/healthz"]
+      interval: 5s
+      retries: 12
+
+  narrator:
+    build:
+      context: .
+      dockerfile: services/narrator/Dockerfile
+    environment:
+      - PORT=12102
+      - LLM_MODE=${LLM_MODE:-fixture}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://openrouter.ai/api/v1}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - NARRATOR_MODEL=${NARRATOR_MODEL:-moonshotai/kimi-k2}
+      - TOOLS_PATH=/config/tools.yaml
+    volumes:
+      - ./fixtures:/fixtures:ro
+      - ./prompts:/prompts:ro
+      - ./config:/config:ro
+      - ./tasks:/tasks:ro
+    networks: [exllm-net]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:12102/healthz"]
+      interval: 5s
+      retries: 12
+
+  audit:
+    build:
+      context: .
+      dockerfile: services/audit/Dockerfile
+      args:
+        CODE_VERSION: ${CODE_VERSION:-dev}
+    depends_on:
+      agent-runtime: {condition: service_healthy}
+    environment:
+      - PORT=12103
+      - TOOLS_PATH=/config/tools.yaml
+      - AGENT_RUNTIME_URL=http://agent-runtime:12101
+      - DB_PATH=/data/audit.db
+      - CI_GAP_THRESHOLD=25
+    volumes:
+      - audit-data:/data
+      - ./config:/config:ro
+      - ./fixtures:/fixtures:ro
+    networks: [exllm-net]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:12103/healthz"]
+      interval: 5s
+      retries: 12
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    ports: ["12100:12100"]
+    depends_on:
+      agent-runtime: {condition: service_healthy}
+      narrator: {condition: service_healthy}
+      audit: {condition: service_healthy}
+    environment:
+      - PORT=12100
+      - AGENT_RUNTIME_URL=http://agent-runtime:12101
+      - NARRATOR_URL=http://narrator:12102
+      - AUDIT_URL=http://audit:12103
+    volumes:
+      - ./tasks:/tasks:ro
+      - ./ui:/app/ui:ro
+    networks: [exllm-net]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:12100/healthz"]
+      interval: 5s
+      retries: 12
+
+networks:
+  exllm-net:
+    driver: bridge
+
+volumes:
+  audit-data:
