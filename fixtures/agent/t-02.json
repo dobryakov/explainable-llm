@@ -1,0 +1,30 @@
+{
+  "_comment": "Эталонная трасса t-02 (эскиз §3, §12.4). Все три источника причинны: абляция любого меняет ответ/вердикт.",
+  "trace": {
+    "decision_id": "01J-t02-ref",
+    "created_at": "2026-09-22T10:05:00+00:00",
+    "task": "Пришёл тикет о двойном списании. Эскалировать, закрыть или вернуть клиенту?",
+    "steps": [
+      {"step_id": "s1", "type": "plan", "ts": "2026-09-22T10:05:00+00:00"},
+      {"step_id": "s2", "type": "tool_call", "ts": "2026-09-22T10:05:01+00:00", "tool_name": "get_ticket", "tool_input": {"ticket_id": "T-5567"}},
+      {"step_id": "s3", "type": "tool_result", "ts": "2026-09-22T10:05:01+00:00", "tool_name": "get_ticket", "tool_output_digest": "Клиент сообщает о двойном списании 2026-09-10 …[b2c3d4]", "retrieved_ids": ["T-5567"], "latency_ms": 4},
+      {"step_id": "s4", "type": "tool_call", "ts": "2026-09-22T10:05:02+00:00", "tool_name": "sql_query", "tool_input": {"query_tag": "payments"}},
+      {"step_id": "s5", "type": "tool_result", "ts": "2026-09-22T10:05:02+00:00", "tool_name": "sql_query", "tool_output_digest": "Два идентичных платежа 1490 руб с интервалом 3 секунды …[e5f6a7]", "retrieved_ids": ["DB-pay-dup"], "latency_ms": 6},
+      {"step_id": "s6", "type": "tool_call", "ts": "2026-09-22T10:05:03+00:00", "tool_name": "search_kb", "tool_input": {"query": "возврат двойное списание политика"}},
+      {"step_id": "s7", "type": "tool_result", "ts": "2026-09-22T10:05:03+00:00", "tool_name": "search_kb", "tool_output_digest": "Политика возврата при двойном списании …[c7d8e9]", "retrieved_ids": ["KB-330"], "latency_ms": 7},
+      {"step_id": "s8", "type": "final", "ts": "2026-09-22T10:05:04+00:00"}
+    ],
+    "sources_used": ["T-5567", "DB-pay-dup", "KB-330"],
+    "tools_available": ["search_kb", "get_ticket", "sql_query", "web_fetch"],
+    "final_answer": "Подтверждено двойное списание (тикет T-5567; два платежа 1490 руб — DB-pay-dup). По политике KB-330 средства возвращаются автоматически в течение 5 рабочих дней. Решение: вернуть клиенту (refund).",
+    "model": "moonshotai/kimi-k2",
+    "prompt_version": "agent.v1",
+    "temperature": 0.0,
+    "code_version": "fixture"
+  },
+  "ablation": {
+    "T-5567": {"final_answer": "Нет контекста обращения — задача не решается без тикета.", "changed": true},
+    "DB-pay-dup": {"final_answer": "Есть жалоба на двойное списание, но фактическое дублирование не подтверждено данными — закрыть нельзя, нужна проверка платежей.", "changed": true},
+    "KB-330": {"final_answer": "Двойное списание подтверждено, но политика возврата недоступна — решение по возврату требует ручного согласования.", "changed": true}
+  }
+}

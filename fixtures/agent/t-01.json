@@ -1,0 +1,27 @@
+{
+  "_comment": "Эталонная трасса t-01 (эскиз §3, §12.4). KB-200 извлечён, но не причинён — источник для демо 'оранжевого' в audit. Абляция KB-114 и DB-cust-plan меняет ответ (причинны); KB-200 отсутствует в таблице => ответ не меняется => не причинён.",
+  "trace": {
+    "decision_id": "01J-t01-ref",
+    "created_at": "2026-09-22T10:00:00+00:00",
+    "task": "Клиент жалуется, что его тариф вырос после продления. Что произошло и что ответить?",
+    "steps": [
+      {"step_id": "s1", "type": "plan", "ts": "2026-09-22T10:00:00+00:00"},
+      {"step_id": "s2", "type": "tool_call", "ts": "2026-09-22T10:00:01+00:00", "tool_name": "search_kb", "tool_input": {"query": "тариф продление биллинг индексация"}},
+      {"step_id": "s3", "type": "tool_result", "ts": "2026-09-22T10:00:01+00:00", "tool_name": "search_kb", "tool_output_digest": "Авто-индексация тарифа при продлении; общий FAQ по биллингу …[a1b2c3]", "retrieved_ids": ["KB-114", "KB-200"], "latency_ms": 7},
+      {"step_id": "s4", "type": "tool_call", "ts": "2026-09-22T10:00:02+00:00", "tool_name": "sql_query", "tool_input": {"query_tag": "plan_history"}},
+      {"step_id": "s5", "type": "tool_result", "ts": "2026-09-22T10:00:02+00:00", "tool_name": "sql_query", "tool_output_digest": "История тарифа клиента - 2026-09-01 повышение 1290 -> 1490 руб …[d4e5f6]", "retrieved_ids": ["DB-cust-plan"], "latency_ms": 5},
+      {"step_id": "s6", "type": "final", "ts": "2026-09-22T10:00:03+00:00"}
+    ],
+    "sources_used": ["KB-114", "KB-200", "DB-cust-plan"],
+    "tools_available": ["search_kb", "get_ticket", "sql_query", "web_fetch"],
+    "final_answer": "Тариф вырос из-за плановой авто-индексации при продлении (политика KB-114); повышение 1290 -> 1490 руб подтверждено историей платежей DB-cust-plan. Клиенту следует пояснить условие индексации и уведомление за 30 дней.",
+    "model": "moonshotai/kimi-k2",
+    "prompt_version": "agent.v1",
+    "temperature": 0.0,
+    "code_version": "fixture"
+  },
+  "ablation": {
+    "KB-114": {"final_answer": "Не удалось сослаться на политику индексации — основание повышения не подтверждено; требуется уточнение у биллинга.", "changed": true},
+    "DB-cust-plan": {"final_answer": "Политика индексации применима, но конкретное повышение тарифа не подтверждено данными — нужна проверка истории платежей.", "changed": true}
+  }
+}
